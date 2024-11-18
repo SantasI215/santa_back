@@ -15,4 +15,9 @@ class Item extends Model
     {
         return $this->belongsToMany(Box::class, 'box_product')->withPivot('quantity');
     }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }
