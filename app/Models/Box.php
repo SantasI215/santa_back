@@ -11,7 +11,8 @@ class Box extends Model
 
     protected $fillable = ['name', 'description', 'contents', 'price'];
 
-    protected $casts = [
-        'contents' => 'array',
-    ];
+    public function items()
+    {
+        return $this->belongsToMany(Item::class, 'box_product')->withPivot('quantity');
+    }
 }

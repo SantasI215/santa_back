@@ -9,7 +9,7 @@ class BoxController extends Controller
 {
     public function index()
     {
-        $boxes = Box::all();
+        $boxes = Box::with('items')->get();
         return response()->json($boxes);
     }
     public function indexNew()
@@ -20,7 +20,8 @@ class BoxController extends Controller
 
     public function show($id)
     {
-        $box = Box::find($id);
+        // Загружаем бокс вместе с товарами
+        $box = Box::with('items')->find($id);
 
         if (!$box) {
             return response()->json(['message' => 'Бокс не найден'], 404);
