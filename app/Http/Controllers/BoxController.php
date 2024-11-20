@@ -21,7 +21,7 @@ class BoxController extends Controller
     public function show($id)
     {
         // Загружаем бокс вместе с товарами
-        $box = Box::with('items', 'items.category')->find($id);
+        $box = Box::with('items', 'items.categories')->find($id);
 
         if (!$box) {
             return response()->json(['message' => 'Бокс не найден'], 404);
