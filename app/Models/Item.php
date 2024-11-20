@@ -11,13 +11,8 @@ class Item extends Model
 
     protected $fillable = ['name', 'category', 'description', 'price', 'in_stock'];
 
-    public function boxes()
+    public function categories()
     {
-        return $this->belongsToMany(Box::class, 'box_product')->withPivot('quantity');
-    }
-
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
+        return $this->belongsToMany(Category::class);
     }
 }
