@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\BoxController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -25,9 +27,15 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::middleware('auth:sanctum')->prefix('admin')->group(function() {
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
     Route::get('/orders', [AdminController::class, 'getOrders']);
-    // Добавьте другие маршруты, необходимые для админки
 });
-Route::middleware([EnsureFrontendRequestsAreStateful::class])->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::middleware(['auth:sanctum'])->get('/user', [UserController::class, 'getUser']);
 Route::middleware(['auth:sanctum', 'admin'])->get('/admin-dashboard', [AdminController::class, 'dashboard']);
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart', [CartController::class, 'store']);
+    Route::delete('/cart/{cartItem}', [CartController::class, 'destroy']);
+
+    Route::post('/cart/add/{boxId}', [CartController::class, 'addToCart']);
+    Route::delete('/cart/remove/{boxId}', [CartController::class, 'removeFromCart']);
+});
