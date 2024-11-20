@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         // Другие middleware...
         'admin' => \App\Http\Middleware\CheckAdmin::class,
+        'auth:api' => \Tymon\JWTAuth\Middleware\Authenticate::class, 
     ];
 }

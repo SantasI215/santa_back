@@ -39,3 +39,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/cart/add/{boxId}', [CartController::class, 'addToCart']);
     Route::delete('/cart/remove/{boxId}', [CartController::class, 'removeFromCart']);
 });
+Route::middleware(['auth:sanctum', 'admin'])->get('/admin/users', function () {
+    return response()->json(App\Models\User::all());
+});
