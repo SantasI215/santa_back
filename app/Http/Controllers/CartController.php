@@ -43,6 +43,28 @@ class CartController extends Controller
         return response()->json(['message' => 'Товар добавлен в корзину']);
     }
 
+    public function addBoxToCart(Request $request)
+    {
+        $userId = auth()->id();
+        $boxData = $request->input('box');
+
+        if (!$boxData || empty($boxData['items'])) {
+            return response()->json(['message' => 'Некорректные данные бокса'], 400);
+        }
+
+        $cart = Cart::firstOrCreate(['user_id' => $userId]);
+
+        foreach ($boxData['items'] as $item) {
+            $cart->items()->syncWithoutDetaching([
+                $item['id'] => [
+                    'quantity' => $item['quantity'] ?? 1,
+                ],
+            ]);
+        }
+
+        return response()->json(['message' => 'Бокс успешно добавлен в корзину']);
+    }
+
     public function removeFromCart(Request $request)
     {
         $user = auth()->user(); // Получаем текущего пользователя

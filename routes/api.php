@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\BoxController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ConfiguratorController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -37,6 +39,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/cart/{cartItem}', [CartController::class, 'destroy']);
 
     Route::post('/cart/add/{boxId}', [CartController::class, 'addToCart']);
+    Route::post('/cart/add', [CartController::class, 'addBoxToCart']);
     Route::delete('/cart/remove/{boxId}', [CartController::class, 'removeFromCart']);
 });
 Route::middleware(['auth:sanctum', 'admin'])->get('/admin/users', function () {
@@ -44,3 +47,6 @@ Route::middleware(['auth:sanctum', 'admin'])->get('/admin/users', function () {
 });
 Route::delete('/admin/users/{id}/delete', [AdminController::class, 'deleteUser']);
 Route::middleware(['auth:sanctum', 'admin'])->delete('/admin/users/{id}/delete', [AdminController::class, 'deleteUser']);
+
+Route::middleware(['auth:sanctum'])->get('/categories', [CategoryController::class, 'index']);
+Route::middleware(['auth:sanctum'])->post('/configurator/generate', [ConfiguratorController::class, 'generateBox']);

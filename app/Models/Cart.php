@@ -20,4 +20,11 @@ class Cart extends Model
     {
         return $this->belongsTo(Box::class);
     }
+
+    public function items()
+    {
+        return $this->belongsToMany(Item::class, 'cart_items')
+            ->withPivot('quantity')
+            ->withTimestamps();
+    }
 }

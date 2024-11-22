@@ -13,6 +13,13 @@ class Item extends Model
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class, 'category_item');
+    }
+
+    public function carts()
+    {
+        return $this->belongsToMany(Cart::class, 'cart_items')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 }
