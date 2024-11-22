@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User; // Используем модель User для работы с пользователями
+use App\Models\User;
+use App\Models\Item;
 
 class AdminController extends Controller
 {
@@ -29,15 +30,26 @@ class AdminController extends Controller
         return response()->json(['error' => 'Access denied'], 403);
     }
     public function deleteUser($id)
-{
-    $user = User::find($id);
+    {
+        $user = User::find($id);
 
-    if (!$user) {
-        return response()->json(['error' => 'User not found'], 404);
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        $user->delete();
+
+        return response()->json(['message' => 'User deleted successfully'], 200);
     }
+    public function deleteItem($id)
+    {
+        try {
+            $item = Item::findOrFail($id);
+            $item->delete();
 
-    $user->delete();
-
-    return response()->json(['message' => 'User deleted successfully'], 200);
-}
+            return response()->json(['message' => 'Item deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Item not found or error occurred'], 400);
+        }
+    }
 }
