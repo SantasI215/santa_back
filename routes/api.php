@@ -44,3 +44,8 @@ Route::middleware(['auth:sanctum', 'admin'])->get('/admin/users', function () {
 });
 Route::delete('/admin/users/{id}/delete', [AdminController::class, 'deleteUser']);
 Route::middleware(['auth:sanctum', 'admin'])->delete('/admin/users/{id}/delete', [AdminController::class, 'deleteUser']);
+Route::middleware(['auth:sanctum'])->get('/items', function () {
+    return response()->json(App\Models\Item::all());
+});
+
+Route::middleware(['auth:sanctum', 'admin'])->delete('/items/{id}/delete', [AdminController::class, 'deleteItem']);
