@@ -9,7 +9,7 @@ class Box extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'contents', 'price'];
+    protected $fillable = ['name', 'description', 'price'];
 
     public function items()
     {

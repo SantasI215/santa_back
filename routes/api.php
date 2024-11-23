@@ -49,3 +49,6 @@ Route::middleware(['auth:sanctum'])->get('/items', function () {
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->delete('/items/{id}/delete', [AdminController::class, 'deleteItem']);
+Route::post('/boxes', [BoxController::class, 'store']); // Добавление нового бокса
+
+
