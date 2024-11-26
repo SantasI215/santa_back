@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('box_id')->constrained()->onDelete('cascade');
-            $table->integer('quantity')->default(1);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Связь с таблицей users
+            $table->foreignId('box_id')->constrained()->onDelete('cascade'); // Связь с таблицей boxes
+            $table->integer('quantity')->default(1); // Количество товаров
             $table->timestamps();
         });
     }

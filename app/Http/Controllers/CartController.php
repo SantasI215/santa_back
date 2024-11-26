@@ -5,88 +5,111 @@ namespace App\Http\Controllers;
 use App\Models\Box;
 use App\Models\Cart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    public function index(Request $request)
-    {
-        $cartBoxes = Cart::with('box')
-            ->where('user_id', $request->user()->id)
-            ->get();
-
-        return response()->json($cartBoxes);
-    }
 
     // Метод для добавления в корзину
-    public function addToCart(Request $request, $boxId)
+    public function addToCart($boxId)
     {
-        $user = auth()->user();
+        $user = Auth::user();  // Получаем текущего пользователя
 
-        // Проверяем, существует ли уже товар в корзине
-        $cartItem = Cart::where('user_id', $user->id)
-            ->where('box_id', $boxId)
-            ->first();
+        // Проверяем, есть ли уже этот товар в корзине
+        $cart = Cart::where('user_id', $user->id)->where('box_id', $boxId)->first();
 
-        if ($cartItem) {
-            // Если товар уже есть, увеличиваем количество
-            $cartItem->quantity++;
-            $cartItem->save();
-        } else {
-            // Если товара нет в корзине, добавляем новый элемент
-            Cart::create([
+        if (!$cart) {
+            // Если товара нет в корзине, создаем новую запись
+            $cart = Cart::create([
                 'user_id' => $user->id,
                 'box_id' => $boxId,
-                'quantity' => 1,
+                'quantity' => 1,  // Начальное количество
             ]);
+        } else {
+            // Если товар уже в корзине, увеличиваем количество
+            $cart->increment('quantity');
         }
 
-        return response()->json(['message' => 'Товар добавлен в корзину']);
+        return response()->json([
+            'message' => 'Товар добавлен в корзину',
+            'cart' => $cart,
+        ]);
     }
 
-    public function addBoxToCart(Request $request)
+    // Метод для отображения корзины текущего пользователя
+    public function viewCart()
     {
-        $userId = auth()->id();
-        $boxData = $request->input('box');
+        $user = Auth::user();
 
-        if (!$boxData || empty($boxData['items'])) {
-            return response()->json(['message' => 'Некорректные данные бокса'], 400);
+        if (!$user) {
+            return response()->json([
+                'message' => 'Пользователь не авторизован',
+            ], 401);
         }
 
-        $cart = Cart::firstOrCreate(['user_id' => $userId]);
+        $cartItems = Cart::with('box')
+            ->where('user_id', $user->id)
+            ->get()
+            ->filter(function ($item) {
+                return $item->box !== null; // Убираем элементы без связанных боксов
+            });
 
-        foreach ($boxData['items'] as $item) {
-            $cart->items()->syncWithoutDetaching([
-                $item['id'] => [
-                    'quantity' => $item['quantity'] ?? 1,
-                ],
-            ]);
+        if ($cartItems->isEmpty()) {
+            return response()->json([
+                'message' => 'Ваша корзина пуста',
+            ], 204);
         }
 
-        return response()->json(['message' => 'Бокс успешно добавлен в корзину']);
+        $totalPrice = $cartItems->sum(function ($item) {
+            return $item->box->price * $item->quantity;
+        });
+
+        $totalQuantity = $cartItems->sum('quantity');
+
+        return response()->json([
+            'cart_items' => $cartItems,
+            'total_price' => $totalPrice,
+            'total_quantity' => $totalQuantity,
+        ], 200);
     }
 
-    public function removeFromCart(Request $request)
+
+    // Метод для удаления товара из корзины
+    public function removeFromCart($boxId)
     {
-        $user = auth()->user(); // Получаем текущего пользователя
-        $cartItem = Cart::where('user_id', $user->id)->where('box_id', $request->box_id)->first();
+        $user = Auth::user(); // Получаем текущего пользователя
+
+        // Находим товар в корзине
+        $cartItem = Cart::find($boxId)
+            ->where('user_id', $user->id)
+            ->first();
 
         if (!$cartItem) {
-            return response()->json(['message' => 'Товар не найден в корзине'], 404);
+            return response()->json([
+                'message' => 'Товар не найден в вашей корзине',
+            ], 404);
         }
 
-        try {
-            // Удаляем товар из корзины
-            $cartItem->delete();
-            return response()->json(['message' => 'Товар удален из корзины']);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Ошибка при удалении товара из корзины', 'error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function destroy(Cart $cartItem)
-    {
+        // Удаляем товар из корзины
         $cartItem->delete();
 
-        return response()->json(['message' => 'Товар удален из корзины']);
+        // Получаем обновленное состояние корзины
+        $cartItems = Cart::with('box')
+            ->where('user_id', $user->id)
+            ->get();
+
+        $totalPrice = $cartItems->sum(function ($item) {
+            return $item->box->price * $item->quantity;
+        });
+
+        $totalQuantity = $cartItems->sum('quantity');
+
+        return response()->json([
+            'message' => 'Товар удален из корзины',
+            'cart_items' => $cartItems,
+            'total_price' => $totalPrice,
+            'total_quantity' => $totalQuantity,
+        ]);
     }
+
 }

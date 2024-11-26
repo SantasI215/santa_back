@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('items', function (Blueprint $table) {
+        Schema::create('boxes', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('category')->nullable();
-            $table->text('description')->nullable();
-            $table->decimal('price', 10, 2);
-            $table->boolean('in_stock')->default(true);
+            $table->string('name'); // Название бокса
+            $table->text('description')->nullable(); // Описание бокса
+            $table->decimal('price', 10, 2); // Цена бокса
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('items');
+        Schema::dropIfExists('boxes');
     }
 };

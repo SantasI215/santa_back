@@ -4,6 +4,7 @@ use App\Http\Controllers\BoxController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ConfiguratorController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -21,6 +22,49 @@ use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 |
 */
 
+// Авторизация
+Route::post('/register', [RegisterController::class, 'register']);
+Route::post('/login', [LoginController::class, 'login']);
+// Авторизация
+
+// Пользователь
+Route::middleware(['auth:sanctum'])->get('/user', [UserController::class, 'getUser']);
+Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'getUserOrders']);
+// Пользователь
+
+// Коробки
+Route::get('/new-boxes', [BoxController::class, 'newBoxes']);
+Route::get('/all-boxes', [BoxController::class, 'index']);
+
+Route::get('/boxes/{id}', [BoxController::class, 'showDetail']);
+// Коробки
+
+// Категории
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/categories', [CategoryController::class, 'index']);
+});
+// Категории
+
+// Корзина
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/cart/add/{boxId}', [CartController::class, 'addToCart']);
+    Route::post('/configurator/create-and-add', [ConfiguratorController::class, 'createAndAddToCart']);
+    Route::get('/cart', [CartController::class, 'viewCart']);
+    Route::delete('/cart/remove/{boxId}', [CartController::class, 'removeFromCart']);
+});
+// Корзина
+
+// Оформление
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/checkout', [OrderController::class, 'checkout']); // Отображение корзины перед заказом
+    Route::post('/place-order', [OrderController::class, 'placeOrder']); // Оформление заказа
+});
+// Оформление
+
+
+
+
+/*
 Route::get('/boxes-new', [BoxController::class, 'indexNew']);
 Route::get('/boxes', [BoxController::class, 'index']);
 Route::get('/boxes/{id}', [BoxController::class, 'show']);
@@ -50,3 +94,4 @@ Route::middleware(['auth:sanctum', 'admin'])->delete('/admin/users/{id}/delete',
 
 Route::middleware(['auth:sanctum'])->get('/categories', [CategoryController::class, 'index']);
 Route::middleware(['auth:sanctum'])->post('/configurator/generate', [ConfiguratorController::class, 'generateBox']);
+*/

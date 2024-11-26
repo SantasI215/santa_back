@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('box_product', function (Blueprint $table) {
+        Schema::create('items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('box_id')->constrained()->onDelete('cascade');
-            $table->foreignId('item_id')->constrained()->onDelete('cascade');
-            $table->integer('quantity')->default(1); // Количество товара в боксе
+            $table->string('name'); // Название товара
+            $table->text('description')->nullable(); // Описание товара
+            $table->decimal('price', 10, 2); // Цена товара
+            $table->timestamps();
         });
     }
 
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('box_product');
+        Schema::dropIfExists('items');
     }
 };
