@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ItemController;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +50,14 @@ Route::middleware(['auth:sanctum'])->get('/items', function () {
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->delete('/items/{id}/delete', [AdminController::class, 'deleteItem']);
-Route::post('/boxes', [BoxController::class, 'store']); // Добавление нового бокса
+Route::post('/boxes', [BoxController::class, 'store']);
+
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::post('/boxes', [BoxController::class, 'store']); 
+    Route::post('/items', [ItemController::class, 'store']);
+    Route::get('/items', function () {
+        return response()->json(App\Models\Item::all()); 
+    });
+});
 
 
