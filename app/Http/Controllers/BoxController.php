@@ -10,20 +10,25 @@ class BoxController extends Controller
 {
     public function index()
     {
-        $boxes = Box::with('items')->get();
+        $boxes = Box::where('is_official', true)
+            ->get();
         return response()->json($boxes);
     }
 
-    public function indexNew()
+    public function newBoxes()
     {
-        $boxes = Box::latest()->take(4)->get();
+        $boxes = Box::where('is_official', true) // Фильтруем только официальные боксы
+            ->latest() // Сортируем по дате создания в порядке убывания
+            ->take(4) // Ограничиваем выборку до 4 записей
+            ->get();
+
         return response()->json($boxes);
     }
 
-    public function show($id)
+    public function showDetail($id)
     {
-        // Загружаем бокс вместе с товарами
-        $box = Box::with('items', 'items.categories')->find($id);
+        // Загружаем бокс вместе с категориями
+        $box = Box::with('categories')->find($id);
 
         if (!$box) {
             return response()->json(['message' => 'Бокс не найден'], 404);

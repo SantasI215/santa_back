@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
+        Schema::table('boxes', function (Blueprint $table) {
+            $table->boolean('is_official')->default(true)->after('price'); // Добавляем поле
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['admin', 'user'])->default('user');
+        Schema::table('boxes', function (Blueprint $table) {
+            $table->dropColumn('is_official'); // Удаляем поле при откате миграции
         });
     }
 };

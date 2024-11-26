@@ -9,10 +9,13 @@ class Box extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'price'];
+    protected $fillable = ['name', 'description', 'price', 'is_official'];
 
-    public function items()
+    /**
+     * Связь многие-ко-многим с категориями.
+     */
+    public function categories()
     {
-        return $this->belongsToMany(Item::class, 'box_product')->withPivot('quantity');
+        return $this->belongsToMany(Category::class, 'box_category', 'box_id', 'category_id');
     }
 }

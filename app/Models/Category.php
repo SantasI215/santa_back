@@ -9,14 +9,21 @@ class Category extends Model
 {
     use HasFactory;
 
-    // Указываем, какие поля могут быть заполнены
     protected $fillable = ['name'];
 
     /**
-     * Связь один-ко-многим с моделью Item
+     * Связь многие-ко-многим с боксами.
+     */
+    public function boxes()
+    {
+        return $this->belongsToMany(Box::class, 'box_category', 'category_id', 'box_id');
+    }
+
+    /**
+     * Связь многие-ко-многим с товарами.
      */
     public function items()
     {
-        return $this->belongsToMany(Item::class);
+        return $this->belongsToMany(Item::class, 'category_item', 'category_id', 'item_id');
     }
 }

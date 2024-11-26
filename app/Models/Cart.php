@@ -11,11 +11,17 @@ class Cart extends Model
 
     protected $fillable = ['user_id', 'box_id', 'quantity'];
 
+    /**
+     * Связь с пользователем.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Связь с боксом.
+     */
     public function box()
     {
         return $this->belongsTo(Box::class);

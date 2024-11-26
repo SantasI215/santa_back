@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\BoxController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ConfiguratorController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -20,44 +23,61 @@ use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 |
 */
 
-Route::get('/boxes-new', [BoxController::class, 'indexNew']);
-Route::get('/boxes', [BoxController::class, 'index']);
-Route::get('/boxes/{id}', [BoxController::class, 'show']);
+// Авторизация
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
-Route::middleware('auth:sanctum')->prefix('admin')->group(function() {
-    Route::get('/dashboard', [AdminController::class, 'dashboard']);
-    Route::get('/orders', [AdminController::class, 'getOrders']);
-});
+// Авторизация
+
+// Пользователь
 Route::middleware(['auth:sanctum'])->get('/user', [UserController::class, 'getUser']);
-Route::middleware(['auth:sanctum', 'admin'])->get('/admin-dashboard', [AdminController::class, 'dashboard']);
+Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'getUserOrders']);
+// Пользователь
 
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/cart', [CartController::class, 'index']);
-    Route::post('/cart', [CartController::class, 'store']);
-    Route::delete('/cart/{cartItem}', [CartController::class, 'destroy']);
+// Коробки
+Route::get('/new-boxes', [BoxController::class, 'newBoxes']);
+Route::get('/all-boxes', [BoxController::class, 'index']);
+Route::get('/boxes/{id}', [BoxController::class, 'showDetail']);
+Route::middleware(['auth:sanctum', 'admin'])->post('/boxes', [BoxController::class, 'store']);
+// Коробки
 
+// Категории
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/categories', [CategoryController::class, 'index']);
+});
+// Категории
+
+// Корзина
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cart/add/{boxId}', [CartController::class, 'addToCart']);
+    Route::post('/configurator/create-and-add', [ConfiguratorController::class, 'createAndAddToCart']);
+    Route::get('/cart', [CartController::class, 'viewCart']);
     Route::delete('/cart/remove/{boxId}', [CartController::class, 'removeFromCart']);
 });
-Route::middleware(['auth:sanctum', 'admin'])->get('/admin/users', function () {
-    return response()->json(App\Models\User::all());
+// Корзина
+
+// Оформление
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/checkout', [OrderController::class, 'checkout']); // Отображение корзины перед заказом
+    Route::post('/place-order', [OrderController::class, 'placeOrder']); // Оформление заказа
 });
-Route::delete('/admin/users/{id}/delete', [AdminController::class, 'deleteUser']);
-Route::middleware(['auth:sanctum', 'admin'])->delete('/admin/users/{id}/delete', [AdminController::class, 'deleteUser']);
+// Оформление
+
+// Админ
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function() {
+    Route::get('/dashboard', [AdminController::class, 'dashboard']);
+    Route::get('/orders', [AdminController::class, 'getOrders']);
+    Route::get('/users', function () {
+        return response()->json(App\Models\User::all());
+    });
+    Route::delete('/users/{id}/delete', [AdminController::class, 'deleteUser']);
+    Route::delete('/items/{id}/delete', [AdminController::class, 'deleteItem']);
+});
+// Админ
+
+// Товары
 Route::middleware(['auth:sanctum'])->get('/items', function () {
     return response()->json(App\Models\Item::all());
 });
-
+Route::middleware(['auth:sanctum', 'admin'])->post('/items', [ItemController::class, 'store']);
 Route::middleware(['auth:sanctum', 'admin'])->delete('/items/{id}/delete', [AdminController::class, 'deleteItem']);
-Route::post('/boxes', [BoxController::class, 'store']);
-
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-    Route::post('/boxes', [BoxController::class, 'store']); 
-    Route::post('/items', [ItemController::class, 'store']);
-    Route::get('/items', function () {
-        return response()->json(App\Models\Item::all()); 
-    });
-});
-
-
+// Товары
