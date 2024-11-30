@@ -10,8 +10,8 @@ class ItemController extends Controller
 {
     public function index()
     {
-        $items = Item::all();
-        return response()->json($items); 
+        $items = Item::with('categories')->get();
+        return response()->json($items);
     }
     public function store(Request $request)
     {

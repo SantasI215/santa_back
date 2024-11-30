@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\OrderItemController;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +45,10 @@ Route::middleware(['auth:sanctum', 'admin'])->post('/boxes', [BoxController::cla
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index']);
 });
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/categories', [CategoryController::class, 'index']); // Получить все категории
+    Route::post('/categories', [CategoryController::class, 'store']); // Добавить новую категорию
+});
 // Категории
 
 // Корзина
@@ -57,8 +62,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Оформление
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/checkout', [OrderController::class, 'checkout']); // Отображение корзины перед заказом
-    Route::post('/place-order', [OrderController::class, 'placeOrder']); // Оформление заказа
+    Route::get('/checkout', [OrderController::class, 'checkout']); 
+    Route::post('/place-order', [OrderController::class, 'placeOrder']); 
 });
 // Оформление
 
@@ -81,3 +86,11 @@ Route::middleware(['auth:sanctum'])->get('/items', function () {
 Route::middleware(['auth:sanctum', 'admin'])->post('/items', [ItemController::class, 'store']);
 Route::middleware(['auth:sanctum', 'admin'])->delete('/items/{id}/delete', [AdminController::class, 'deleteItem']);
 // Товары
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/categories', [CategoryController::class, 'index']); // Получить все категории
+    Route::post('/categories', [CategoryController::class, 'store']); // Добавить новую категорию
+});
+
+Route::middleware('auth:api')->get('/order-history', [OrderController::class, 'getOrderHistory']);
+Route::get('/order-items', [OrderItemController::class, 'index']);

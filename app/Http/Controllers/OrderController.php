@@ -90,4 +90,14 @@ class OrderController extends Controller
             return response()->json(['message' => 'Ошибка сервера', 'error' => $e->getMessage()], 500);
         }
     }
+    public function getOrderHistory(Request $request)
+    {
+        // Получаем ID текущего пользователя
+        $userId = $request->user()->id;
+        
+        // Получаем историю заказов для текущего пользователя
+        $orders = Order::where('user_id', $userId)->get();
+        
+        return response()->json($orders);
+    }
 }
