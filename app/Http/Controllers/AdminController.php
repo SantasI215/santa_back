@@ -2,16 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Item;
 
 class AdminController extends Controller
 {
-    public function dashboard()
+    // Получить всех пользователей
+    public function getAllUsers()
     {
-        return response()->json(['message' => 'Welcome to the admin dashboard']);
+        $users = User::all();
+        return response()->json($users);
     }
+    // Получить всех пользователей
+
+    public function getOrders()
+    {
+        $orders = Order
+            ::with(['user', 'orderItems'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return response()->json($orders);
+    }
+
+
+
+
+
 
     // public function getOrders()
     // {

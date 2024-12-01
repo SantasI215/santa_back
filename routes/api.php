@@ -45,10 +45,6 @@ Route::middleware(['auth:sanctum', 'admin'])->post('/boxes', [BoxController::cla
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index']);
 });
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/categories', [CategoryController::class, 'index']); // Получить все категории
-    Route::post('/categories', [CategoryController::class, 'store']); // Добавить новую категорию
-});
 // Категории
 
 // Корзина
@@ -62,23 +58,41 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Оформление
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/checkout', [OrderController::class, 'checkout']); 
-    Route::post('/place-order', [OrderController::class, 'placeOrder']); 
+    Route::get('/checkout', [OrderController::class, 'checkout']);
+    Route::post('/place-order', [OrderController::class, 'placeOrder']);
 });
 // Оформление
 
 // Админ
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function() {
-    Route::get('/dashboard', [AdminController::class, 'dashboard']);
+    // Пользователи
+    Route::get('/users', [AdminController::class, 'getAllUsers']);
+    // Пользователи
+    // Товары
+    Route::get('/items', [ItemController::class, 'getAllItems']);
+    Route::post('/items', [ItemController::class, 'store']);
+    Route::delete('/items/{id}', [ItemController::class, 'destroy']);
+    // Товары
+    // Категории
+    Route::post('/categories', [CategoryController::class, 'store']);
+    // Категории
+    // Боксы
+    Route::delete('/boxes/{id}', [BoxController::class, 'destroy']);
+    // Боксы
+    // Заказы
     Route::get('/orders', [AdminController::class, 'getOrders']);
-    Route::get('/users', function () {
-        return response()->json(App\Models\User::all());
-    });
+    // Заказы
+
+
+
+
     Route::delete('/users/{id}/delete', [AdminController::class, 'deleteUser']);
     Route::delete('/items/{id}/delete', [AdminController::class, 'deleteItem']);
 });
 // Админ
 
+
+/*
 // Товары
 Route::middleware(['auth:sanctum'])->get('/items', function () {
     return response()->json(App\Models\Item::all());
@@ -93,4 +107,4 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('auth:api')->get('/order-history', [OrderController::class, 'getOrderHistory']);
-Route::get('/order-items', [OrderItemController::class, 'index']);
+Route::get('/order-items', [OrderItemController::class, 'index']);*/

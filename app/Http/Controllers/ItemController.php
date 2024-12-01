@@ -8,26 +8,46 @@ use Illuminate\Support\Facades\Validator;
 
 class ItemController extends Controller
 {
-    public function index()
+    // Получить всех товаров
+    public function getAllItems()
     {
-        $items = Item::with('categories')->get();
+        $items = Item
+            ::with('categories')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
         return response()->json($items);
     }
+    // Получить всех товаров
     public function store(Request $request)
     {
+        // Валидация входящих данных
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'quantity' => 'required|numeric|min:0',
+            'categories' => 'required|array',
+            'categories.*' => 'exists:categories,id',
         ]);
+
+        // Если валидация не прошла
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
+
+        // Создание товара
         $item = Item::create([
             'name' => $request->name,
-            'description' => $request->description,
             'price' => $request->price,
+            'quantity' => $request->quantity,
         ]);
+
+        // Привязка категорий к товару
+        $item->categories()->attach($request->categories);
+
+        // Загрузка категорий вместе с товаром
+        $item->load('categories');  // Это загрузит связанные категории
+
+        // Возврат успешного ответа с категориями
         return response()->json($item, 201);
     }
 
