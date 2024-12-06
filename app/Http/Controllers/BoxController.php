@@ -97,4 +97,22 @@ class BoxController extends Controller
             return response()->json(['error' => 'Не удалось удалить бокс.'], 500);
         }
     }
+    // Обновить существующий бокс
+    public function update(Request $request, $id)
+    {
+        $box = Box::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'categories' => 'array',
+            'categories.*' => 'exists:categories,id',
+        ]);
+
+        $box->update($request->only('name', 'description', 'price'));
+        $box->categories()->sync($request->categories);
+
+        return response()->json($box->load('categories'));
+    }
 }

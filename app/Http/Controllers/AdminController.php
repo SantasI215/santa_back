@@ -70,4 +70,5 @@ class AdminController extends Controller
             return response()->json(['error' => 'Item not found or error occurred'], 400);
         }
     }
+    
 }

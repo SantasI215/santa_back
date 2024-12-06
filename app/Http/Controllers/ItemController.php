@@ -62,4 +62,30 @@ class ItemController extends Controller
         $item->delete();
         return response()->json(['message' => 'Товар удален'], 200);
     }
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'quantity' => 'required|numeric|min:0',
+            'categories' => 'required|array',
+            'categories.*' => 'exists:categories,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $item = Item::findOrFail($id);
+        $item->update([
+            'name' => $request->name,
+            'price' => $request->price,
+            'quantity' => $request->quantity,
+        ]);
+
+        $item->categories()->sync($request->categories);
+
+        $item->load('categories');
+        return response()->json($item, 200);
+    }
 }

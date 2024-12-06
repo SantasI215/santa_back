@@ -11,8 +11,10 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\OrderItemController;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -64,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // Оформление
 
 // Админ
-Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function() {
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     // Пользователи
     Route::get('/users', [AdminController::class, 'getAllUsers']);
     // Пользователи
@@ -82,10 +84,6 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function() 
     // Заказы
     Route::get('/orders', [AdminController::class, 'getOrders']);
     // Заказы
-
-
-
-
     Route::delete('/users/{id}/delete', [AdminController::class, 'deleteUser']);
     Route::delete('/items/{id}/delete', [AdminController::class, 'deleteItem']);
 });
@@ -108,3 +106,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware('auth:api')->get('/order-history', [OrderController::class, 'getOrderHistory']);
 Route::get('/order-items', [OrderItemController::class, 'index']);*/
+
+Route::post('/logout', [LogoutController::class, 'logout'])->middleware('auth:sanctum');
+
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('categories/{id}', [CategoryController::class, 'destroy']);
+});
+
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    Route::post('/items', [ItemController::class, 'store']);
+    Route::put('/items/{id}', [ItemController::class, 'update']);
+    Route::delete('items/{id}', [ItemController::class, 'destroy']);
+});
+
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    Route::post('/boxes', [BoxController::class, 'store']);
+    Route::put('/boxes/{id}', [BoxController::class, 'update']);
+    Route::delete('boxes/{id}', [BoxController::class, 'destroy']);
+});
