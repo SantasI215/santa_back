@@ -13,28 +13,20 @@ class CartController extends Controller
     // Метод для добавления в корзину
     public function addToCart($boxId)
     {
-        $user = Auth::user();  // Получаем текущего пользователя
+        $user = Auth::user(); // Получаем текущего пользователя
 
-        // Проверяем, есть ли уже этот товар в корзине
-        $cart = Cart::where('user_id', $user->id)->where('box_id', $boxId)->first();
-
-        if (!$cart) {
-            // Если товара нет в корзине, создаем новую запись
-            $cart = Cart::create([
-                'user_id' => $user->id,
-                'box_id' => $boxId,
-                'quantity' => 1,  // Начальное количество
-            ]);
-        } else {
-            // Если товар уже в корзине, увеличиваем количество
-            $cart->increment('quantity');
-        }
+        // Добавляем новую запись в корзину
+        $cart = Cart::create([
+            'user_id' => $user->id,
+            'box_id' => $boxId,
+        ]);
 
         return response()->json([
             'message' => 'Товар добавлен в корзину',
-            'cart' => $cart,
+            'cartItemId' => $cart->id, // Возвращаем уникальный ID записи корзины
         ]);
     }
+
 
     // Метод для отображения корзины текущего пользователя
     public function viewCart()
@@ -61,26 +53,24 @@ class CartController extends Controller
         }
 
         $totalPrice = $cartItems->sum(function ($item) {
-            return $item->box->price * $item->quantity;
+            return $item->box->price; // Общая сумма без учета количества
         });
-
-        $totalQuantity = $cartItems->sum('quantity');
 
         return response()->json([
             'cart_items' => $cartItems,
             'total_price' => $totalPrice,
-            'total_quantity' => $totalQuantity,
         ], 200);
     }
 
 
+
     // Метод для удаления товара из корзины
-    public function removeFromCart($boxId)
+    public function removeFromCart($cartItemId)
     {
         $user = Auth::user(); // Получаем текущего пользователя
 
-        // Находим товар в корзине
-        $cartItem = Cart::find($boxId)
+        // Находим запись в корзине по её уникальному ID
+        $cartItem = Cart::where('id', $cartItemId)
             ->where('user_id', $user->id)
             ->first();
 
@@ -99,17 +89,14 @@ class CartController extends Controller
             ->get();
 
         $totalPrice = $cartItems->sum(function ($item) {
-            return $item->box->price * $item->quantity;
+            return $item->box->price;
         });
 
-        $totalQuantity = $cartItems->sum('quantity');
-
         return response()->json([
-            'message' => 'Товар удален из корзины',
+            'message' => 'Товар удалён из корзины',
             'cart_items' => $cartItems,
             'total_price' => $totalPrice,
-            'total_quantity' => $totalQuantity,
-        ]);
+        ], 200);
     }
 
 }
