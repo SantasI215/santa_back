@@ -20,7 +20,12 @@ class AdminController extends Controller
     public function getOrders()
     {
         $orders = Order
-            ::with(['user', 'orderItems'])
+            ::with([
+                'user',
+                'orderItems.box' => function ($query) {
+                    $query->select('id', 'name');
+                },
+            ])
             ->orderBy('created_at', 'desc')
             ->get();
         return response()->json($orders);
@@ -70,5 +75,5 @@ class AdminController extends Controller
             return response()->json(['error' => 'Item not found or error occurred'], 400);
         }
     }
-    
+
 }
