@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BoxController;
+use App\Http\Controllers\Api\BoxItemController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ConfiguratorController;
@@ -41,6 +42,10 @@ Route::get('/new-boxes', [BoxController::class, 'newBoxes']);
 Route::get('/all-boxes', [BoxController::class, 'index']);
 Route::get('/boxes/{id}', [BoxController::class, 'showDetail']);
 Route::middleware(['auth:sanctum', 'admin'])->post('/boxes', [BoxController::class, 'store']);
+// Box Assembly routes
+Route::get('/boxes/{boxId}/items', [BoxItemController::class, 'getBoxItems']);
+Route::get('/boxes/{boxId}/suggestions', [BoxItemController::class, 'getSuggestions']);
+Route::post('/boxes/{boxId}/save', [BoxItemController::class, 'saveBox']);
 // Коробки
 
 // Категории
