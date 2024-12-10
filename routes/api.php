@@ -129,5 +129,5 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     Route::post('/boxes', [BoxController::class, 'store']);
     Route::put('/boxes/{id}', [BoxController::class, 'update']);
-    Route::delete('boxes/{id}', [BoxController::class, 'destroy']);
+    // Route::delete('boxes/{id}', [BoxController::class, 'destroy']);
 });
