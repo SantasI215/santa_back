@@ -33,7 +33,6 @@ class ConfiguratorController extends Controller
         Cart::create([
             'user_id' => $user->id,
             'box_id' => $box->id,
-            'quantity' => 1, // По умолчанию 1
         ]);
 
         return response()->json([

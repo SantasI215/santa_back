@@ -42,10 +42,6 @@ Route::get('/new-boxes', [BoxController::class, 'newBoxes']);
 Route::get('/all-boxes', [BoxController::class, 'index']);
 Route::get('/boxes/{id}', [BoxController::class, 'showDetail']);
 Route::middleware(['auth:sanctum', 'admin'])->post('/boxes', [BoxController::class, 'store']);
-// Box Assembly routes
-Route::get('/boxes/{boxId}/items', [BoxItemController::class, 'getBoxItems']);
-Route::get('/boxes/{boxId}/suggestions', [BoxItemController::class, 'getSuggestions']);
-Route::post('/boxes/{boxId}/save', [BoxItemController::class, 'saveBox']);
 // Коробки
 
 // Категории
@@ -86,15 +82,21 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Боксы
     Route::delete('/boxes/{id}', [BoxController::class, 'destroy']);
     // Боксы
-    // Заказы
     Route::get('/orders', [AdminController::class, 'getOrders']);
-    // Заказы
     Route::delete('/users/{id}/delete', [AdminController::class, 'deleteUser']);
     Route::delete('/items/{id}/delete', [AdminController::class, 'deleteItem']);
 });
 // Админ
 
-
+// Сборщик
+Route::middleware(['auth:sanctum', 'collector'])->prefix('collector')->group(function () {
+    Route::get('/orders', [AdminController::class, 'getOrders']);
+    // Box Assembly
+    Route::get('/boxes/{boxId}/items', [BoxItemController::class, 'getBoxItems']);
+    Route::get('/boxes/{boxId}/suggestions', [BoxItemController::class, 'getSuggestions']);
+    Route::post('/boxes/{boxId}/save', [BoxItemController::class, 'saveBox']);
+});
+// Сборщик
 /*
 // Товары
 Route::middleware(['auth:sanctum'])->get('/items', function () {
