@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Item;
@@ -17,7 +18,7 @@ class AdminController extends Controller
     }
     // Получить всех пользователей
 
-    public function getOrders()
+    public function getAllOrders()
     {
         $orders = Order
             ::with([
@@ -30,6 +31,49 @@ class AdminController extends Controller
             ->get();
         return response()->json($orders);
     }
+
+    public function getOrders()
+    {
+        $user = auth()->user();
+
+        $orders = Order::with([
+            'user',
+            'orderItems.box' => function ($query) {
+                $query->select('id', 'name');
+            },
+        ])
+            ->where(function ($query) use ($user) {
+                $query->whereNull('collector_name') // Боксы без сборщика
+                ->orWhere('collector_name', $user->name); // Боксы текущего сборщика
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($orders);
+    }
+
+
+    public function assignCollector(Request $request, $boxId)
+    {
+        $user = auth()->user(); // Получаем текущего пользователя
+
+        // Находим OrderItem по переданному ID
+        $orderItem = OrderItem::findOrFail($boxId);
+
+        // Проверяем, связан ли OrderItem с заказом (Order)
+        $order = $orderItem->order; // Предполагается связь с моделью Order через отношение
+        if (!$order) {
+            return response()->json(['message' => 'Order not found for this item.'], 404);
+        }
+
+        // Записываем имя сборщика в заказ
+        $order->collector_name = $user->name;
+        $order->save();
+
+        return response()->json(['message' => 'Collector assigned successfully.']);
+    }
+
+
 
 
 
