@@ -86,6 +86,7 @@ class OrderController extends Controller
         }
     }
 
+
     // Метод для получения истории заказов
     public function getOrderHistory(Request $request)
     {
