@@ -87,34 +87,19 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::delete('/items/{id}/delete', [AdminController::class, 'deleteItem']);
 });
 // Админ
-
+// Просмотр содержимого
+Route::middleware(['auth:sanctum', 'admin-collector'])->get('/boxes/{boxId}/items', [BoxItemController::class, 'getBoxItems']);
+// Просмотр содержимого
 // Сборщик
 Route::middleware(['auth:sanctum', 'collector'])->prefix('collector')->group(function () {
-    Route::get('/orders', [AdminController::class, 'getOrders']);
+    Route::get('/order-items', [AdminController::class, 'getOrders']);
     Route::patch('/order-items/{boxId}/assign-collector', [AdminController::class, 'assignCollector']);
     // Box Assembly
-    Route::get('/boxes/{boxId}/items', [BoxItemController::class, 'getBoxItems']);
+
     Route::get('/boxes/{boxId}/suggestions', [BoxItemController::class, 'getSuggestions']);
     Route::post('/boxes/{boxId}/save', [BoxItemController::class, 'saveBox']);
 });
-
 // Сборщик
-/*
-// Товары
-Route::middleware(['auth:sanctum'])->get('/items', function () {
-    return response()->json(App\Models\Item::all());
-});
-Route::middleware(['auth:sanctum', 'admin'])->post('/items', [ItemController::class, 'store']);
-Route::middleware(['auth:sanctum', 'admin'])->delete('/items/{id}/delete', [AdminController::class, 'deleteItem']);
-// Товары
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/categories', [CategoryController::class, 'index']); // Получить все категории
-    Route::post('/categories', [CategoryController::class, 'store']); // Добавить новую категорию
-});
-
-Route::middleware('auth:api')->get('/order-history', [OrderController::class, 'getOrderHistory']);
-Route::get('/order-items', [OrderItemController::class, 'index']);*/
 
 Route::post('/logout', [LogoutController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -133,5 +118,4 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     Route::post('/boxes', [BoxController::class, 'store']);
     Route::put('/boxes/{id}', [BoxController::class, 'update']);
-    // Route::delete('boxes/{id}', [BoxController::class, 'destroy']);
 });

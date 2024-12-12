@@ -85,17 +85,4 @@ class OrderController extends Controller
             return response()->json(['message' => 'Ошибка сервера', 'error' => $e->getMessage()], 500);
         }
     }
-
-
-    // Метод для получения истории заказов
-    public function getOrderHistory(Request $request)
-    {
-        $userId = $request->user()->id;
-
-        $orders = Order::where('user_id', $userId)
-            ->with(['items.box'])
-            ->get();
-
-        return response()->json(['orders' => $orders]);
-    }
 }

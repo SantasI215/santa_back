@@ -18,17 +18,22 @@ class AdminController extends Controller
     }
     // Получить всех пользователей
 
-    public function getAllOrders()
+    public function getAllOrders(Request $request)
     {
-        $orders = Order
-            ::with([
-                'user',
-                'orderItems.box' => function ($query) {
-                    $query->select('id', 'name');
-                },
-            ])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Order::with([
+            'user',
+            'orderItems.box' => function ($query) {
+                $query->select('id', 'name');
+            },
+        ])->orderBy('created_at', 'desc');
+
+        // Фильтр по номеру заказа
+        if ($request->has('order_id') && !empty($request->input('order_id'))) {
+            $query->where('id', $request->input('order_id'));
+        }
+
+        $orders = $query->get();
+
         return response()->json($orders);
     }
 
@@ -36,66 +41,48 @@ class AdminController extends Controller
     {
         $user = auth()->user();
 
-        $orders = Order::with([
-            'user',
-            'orderItems.box' => function ($query) {
+        $orderItems = OrderItem::with([
+            'box' => function ($query) {
                 $query->select('id', 'name');
+            },
+            'order' => function ($query) {
+                $query->select('id', 'user_id'); // Ограничиваем данные заказа
+            },
+            'order.user' => function ($query) {
+                $query->select('id', 'name', 'email'); // Ограничиваем данные пользователя
             },
         ])
             ->where(function ($query) use ($user) {
-                $query->whereNull('collector_name') // Боксы без сборщика
-                ->orWhere('collector_name', $user->name); // Боксы текущего сборщика
+                $query->whereNull('collector_name') // Товары без сборщика
+                ->orWhere('collector_name', $user->name); // Товары, собираемые текущим сборщиком
             })
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json($orders);
+        return response()->json($orderItems);
     }
 
-
-    public function assignCollector(Request $request, $boxId)
+    public function assignCollector(Request $request, $itemId)
     {
         $user = auth()->user(); // Получаем текущего пользователя
 
-        // Находим OrderItem по переданному ID
-        $orderItem = OrderItem::findOrFail($boxId);
+        $orderItem = OrderItem::findOrFail($itemId);
 
-        // Проверяем, связан ли OrderItem с заказом (Order)
-        $order = $orderItem->order; // Предполагается связь с моделью Order через отношение
-        if (!$order) {
-            return response()->json(['message' => 'Order not found for this item.'], 404);
+        // Проверяем, есть ли уже назначенный сборщик
+        if (!empty($orderItem->collector_name) && $orderItem->collector_name !== $user->name) {
+            return response()->json([
+                'error' => 'Этот товар уже собирается другим сборщиком: ' . $orderItem->collector_name,
+            ], 403);
         }
 
-        // Записываем имя сборщика в заказ
-        $order->collector_name = $user->name;
-        $order->save();
+        // Назначаем текущего пользователя сборщиком
+        $orderItem->collector_name = $user->name;
+        $orderItem->save();
 
-        return response()->json(['message' => 'Collector assigned successfully.']);
+        return response()->json(['message' => 'Сборщик успешно назначен.']);
     }
 
 
-
-
-
-
-
-
-    // public function getOrders()
-    // {
-    //     $orders = Item::all();
-    //     return response()->json($orders);
-    // }
-
-    public function adminDashboard()
-    {
-        $user = auth()->user();
-
-        if ($user && $user->role === 'admin') {
-            return response()->json(['message' => 'Welcome to the admin panel']);
-        }
-
-        return response()->json(['error' => 'Access denied'], 403);
-    }
     public function deleteUser($id)
     {
         $user = User::find($id);
