@@ -119,3 +119,5 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/boxes', [BoxController::class, 'store']);
     Route::put('/boxes/{id}', [BoxController::class, 'update']);
 });
+Route::patch('/admin/boxes/{id}/toggle-active', [BoxController::class, 'toggleActive']);
+Route::patch('/admin/boxes/{id}/toggle-status', [BoxController::class, 'toggleStatus']);

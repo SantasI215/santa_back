@@ -14,7 +14,7 @@ class ItemController extends Controller
         $items = Item
             ::with('categories')
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(10);
         return response()->json($items);
     }
     // Получить всех товаров

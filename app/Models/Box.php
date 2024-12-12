@@ -9,7 +9,7 @@ class Box extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'price', 'is_official'];
+    protected $fillable = ['name', 'description', 'price', 'is_official', 'is_active'];
 
     /**
      * Связь многие-ко-многим с категориями.
