@@ -115,4 +115,12 @@ class BoxController extends Controller
 
         return response()->json($box->load('categories'));
     }
+    public function toggleActive($id)
+    {
+        $box = Box::findOrFail($id);
+        $box->is_active = !$box->is_active; // Меняем статус на противоположный
+        $box->save();
+
+        return response()->json(['box' => $box, 'message' => 'Статус обновлен успешно.']);
+    }
 }
