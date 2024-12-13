@@ -18,12 +18,22 @@ class BoxController extends Controller
         return response()->json($boxes);
     }
 
+    public function indexAll()
+    {
+        $boxes = Box::where('active', 'Активный')  // Фильтруем по булевому значению
+            ->where('is_official', true)
+            ->with('categories')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($boxes);
+    }
     public function newBoxes()
     {
         $boxes = Box
-            ::where('is_official', true) // Фильтруем только официальные боксы
-            ->latest() // Сортируем по дате создания в порядке убывания
-            ->take(4) // Ограничиваем выборку до 4 записей
+            ::where('active', 'Активный')
+            ->latest()
+            ->take(4)
             ->get();
 
         return response()->json($boxes);
@@ -108,17 +118,19 @@ class BoxController extends Controller
             'price' => 'required|numeric|min:0',
             'categories' => 'array',
             'categories.*' => 'exists:categories,id',
+            'active' => 'required|in:Активный,Неактивный', // Проверка допустимых значений
         ]);
 
-        $box->update($request->only('name', 'description', 'price'));
+        $box->update($request->only('name', 'description', 'price', 'active'));
         $box->categories()->sync($request->categories);
 
         return response()->json($box->load('categories'));
     }
+
     public function toggleActive($id)
     {
         $box = Box::findOrFail($id);
-        $box->is_active = !$box->is_active; // Меняем статус на противоположный
+        $box->active = !$box->active;
         $box->save();
 
         return response()->json(['box' => $box, 'message' => 'Статус обновлен успешно.']);
