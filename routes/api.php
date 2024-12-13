@@ -39,7 +39,7 @@ Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'getU
 
 // Коробки
 Route::get('/new-boxes', [BoxController::class, 'newBoxes']);
-Route::get('/all-boxes', [BoxController::class, 'index']);
+Route::get('/index-all', [BoxController::class, 'indexAll']);
 Route::get('/boxes/{id}', [BoxController::class, 'showDetail']);
 Route::middleware(['auth:sanctum', 'admin'])->post('/boxes', [BoxController::class, 'store']);
 // Коробки
@@ -80,6 +80,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/categories', [CategoryController::class, 'store']);
     // Категории
     // Боксы
+    Route::get('/all-boxes', [BoxController::class, 'index']);
     Route::delete('/boxes/{id}', [BoxController::class, 'destroy']);
     // Боксы
     Route::get('/orders', [AdminController::class, 'getAllOrders']);
@@ -120,4 +121,4 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::put('/boxes/{id}', [BoxController::class, 'update']);
 });
 Route::patch('/admin/boxes/{id}/toggle-active', [BoxController::class, 'toggleActive']);
-Route::patch('/admin/boxes/{id}/toggle-status', [BoxController::class, 'toggleStatus']);
+// Route::patch('/admin/boxes/{id}/toggle-status', [BoxController::class, 'toggleStatus']);
