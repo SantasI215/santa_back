@@ -18,9 +18,35 @@ class BoxController extends Controller
         return response()->json($boxes);
     }
 
-    public function indexAll()
+    public function indexAll(Request $request)
     {
-        $boxes = Box::where('active', 'Активный')  // Фильтруем по булевому значению
+        $query = Box::query();
+
+        // Фильтр по категориям
+        if ($request->has('categories')) {
+            $categories = $request->input('categories');
+            $query->whereHas('categories', function ($q) use ($categories) {
+                $q->whereIn('id', $categories);
+            });
+        }
+
+        // Сортировка
+        if ($request->has('sort_by')) {
+            $sortBy = $request->input('sort_by');
+            switch ($sortBy) {
+                case 'price':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'name':
+                    $query->orderBy('name', 'asc');
+                    break;
+                case 'newest':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+            }
+        }
+
+        $boxes = $query->where('active', 'Активный')  // Фильтруем по булевому значению
             ->where('is_official', true)
             ->with('categories')
             ->orderBy('created_at', 'desc')
