@@ -22,11 +22,10 @@ class BoxController extends Controller
     {
         $query = Box::query();
 
-        // Фильтр по категориям
         if ($request->has('categories')) {
-            $categories = $request->input('categories');
+            $categories = explode(',', $request->input('categories')); // Преобразуем строку в массив
             $query->whereHas('categories', function ($q) use ($categories) {
-                $q->whereIn('id', $categories);
+                $q->whereIn('category_id', $categories);
             });
         }
 
@@ -79,14 +78,21 @@ class BoxController extends Controller
 
     public function store(Request $request)
     {
-        // Валидация входных данных
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
             'price' => 'required|numeric|min:0',
             'categories' => 'required|array',
             'categories.*' => 'integer|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        // Обработка загрузки изображения
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('box_images', 'public'); // Сохранение в папку "box_images" внутри storage/app/public
+        } else {
+            $imagePath = null;
+        }
 
         if ($validator->fails()) {
             return response()->json([
@@ -101,6 +107,7 @@ class BoxController extends Controller
                 'name' => $request->input('name'),
                 'description' => $request->input('description'),
                 'price' => $request->input('price'),
+                'image' => $imagePath,
             ]);
 
             // Привязка категорий к боксу
@@ -146,6 +153,17 @@ class BoxController extends Controller
             'categories.*' => 'exists:categories,id',
             'active' => 'required|in:Активный,Неактивный', // Проверка допустимых значений
         ]);
+
+    if ($request->hasFile('image')) {
+        if ($box->image && file_exists(storage_path('app/public/box_images/' . $box->image))) {
+            unlink(storage_path('app/public/box_images/' . $box->image));
+        }
+
+        $image = $request->file('image');
+        $imagePath = $image->store('box_images', 'public');
+
+        $box->image = $imagePath;
+    }
 
         $box->update($request->only('name', 'description', 'price', 'active'));
         $box->categories()->sync($request->categories);
