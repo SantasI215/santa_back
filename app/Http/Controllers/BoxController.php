@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Box;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use function Laravel\Prompts\error;
 
 class BoxController extends Controller
 {
@@ -32,17 +33,13 @@ class BoxController extends Controller
         // Сортировка
         if ($request->has('sort_by')) {
             $sortBy = $request->input('sort_by');
-            switch ($sortBy) {
-                case 'price':
-                    $query->orderBy('price', 'asc');
-                    break;
-                case 'name':
-                    $query->orderBy('name', 'asc');
-                    break;
-                case 'newest':
-                    $query->orderBy('created_at', 'desc');
-                    break;
+            $sortOrder = $request->input('sort_order', 'desc');
+
+            if (!in_array($sortBy, ['price', 'name', 'created_at'])) {
+                return error('Invalid sort_by');
             }
+
+            $query->orderBy($sortBy, $sortOrder);
         }
 
         $boxes = $query->where('active', 'Активный')  // Фильтруем по булевому значению
